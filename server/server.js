@@ -85,6 +85,25 @@ const saveLog = async (data, userId) => {
     }
 };
 
+
+// Debug Route
+app.get('/api/debug', async (req, res) => {
+    try {
+        const client = await pool.connect();
+        const result = await client.query('SELECT NOW()');
+        const tables = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
+        client.release();
+        res.json({
+            status: 'Database connected',
+            time: result.rows[0].now,
+            tables: tables.rows.map(r => r.table_name)
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'DB Connection Failed', details: err.message });
+    }
+});
+
 // --- AUTH ROUTES ---
 
 // Register
