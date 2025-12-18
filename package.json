@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Root configuration for Vercel deployment of Hack2Skill",
     "scripts": {
+        "start": "node server/server.js",
         "build": "cd client && npm install && npm run build"
     },
     "dependencies": {
