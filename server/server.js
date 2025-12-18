@@ -16,7 +16,41 @@ app.use(express.json());
 // Database Connection
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    // Add SSL for production if using Render/Cloud providers
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
+
+// Automatic Migration
+const initDb = async () => {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(100) NOT NULL UNIQUE,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password_hash VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS career_logs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                education VARCHAR(255),
+                major VARCHAR(255),
+                skills TEXT,
+                interests TEXT,
+                goals TEXT,
+                generated_content JSONB,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Database initialized successfully');
+    } catch (err) {
+        console.error('Error initializing database:', err);
+    }
+};
+
+initDb();
 
 // Gemini AI Setup
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
