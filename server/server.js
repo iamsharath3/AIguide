@@ -103,7 +103,8 @@ app.post('/api/auth/register', async (req, res) => {
         if (error.code === '23505') { // Unique violation
             return res.status(400).json({ error: 'Username or email already exists' });
         }
-        res.status(500).json({ error: 'Registration failed' });
+        // Return actual error message for debugging
+        res.status(500).json({ error: error.message || 'Registration failed' });
     }
 });
 
